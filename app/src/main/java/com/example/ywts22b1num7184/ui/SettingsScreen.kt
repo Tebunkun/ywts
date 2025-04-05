@@ -1,55 +1,73 @@
 package com.example.ywts22b1num7184.ui
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.ywts22b1num7184.WordApp
+import androidx.navigation.NavController
+import com.example.ywts22b1num7184.data.SettingsManager
+import kotlinx.coroutines.launch
 
 @Composable
-fun WordSettingsScreen(viewModel: WordApp, onBack: () -> Unit) {
-//    val uiState by viewModel
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(16.dp)
-//    ) {
-//        Text(text = "Тохиргоо", style = MaterialTheme.typography.headlineMedium)
-//
-//        Text("Үг харуулах горим:", style = MaterialTheme.typography.bodyLarge)
-//
-//        RadioButtonWithLabel(
-//            label = "Монгол + Гадаад (Анхны тохиргоо)",
-//            selected = uiState.displayMode == 0,
-//            onSelect = { viewModel.setDisplayMode(0) }
-//        )
-//
-//        RadioButtonWithLabel(
-//            label = "Зөвхөн Гадаад үг",
-//            selected = uiState.displayMode == 1,
-//            onSelect = { viewModel.setDisplayMode(1) }
-//        )
-//
-//        RadioButtonWithLabel(
-//            label = "Зөвхөн Монгол үг",
-//            selected = uiState.displayMode == 2,
-//            onSelect = { viewModel.setDisplayMode(2) }
-//        )
-//
-//        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-//            Text("Буцах")
-//        }
-//    }
-}
+fun SettingsScreen(navController: NavController, settingsManager: SettingsManager) {
+    val options = listOf(
+        SettingsManager.SHOW_FOREIGN,
+        SettingsManager.SHOW_NATIVE,
+        SettingsManager.SHOW_BOTH
+    )
 
-@Composable
-fun RadioButtonWithLabel(label: String, selected: Boolean, onSelect: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = selected, onClick = onSelect)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(label)
+    val scope = rememberCoroutineScope()
+    val currentSetting by settingsManager.visibilityMode.collectAsState(initial = SettingsManager.SHOW_BOTH)
+    var selectedOption by remember { mutableStateOf(currentSetting) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Үзүүлэх тохиргоо", style = MaterialTheme.typography.headlineSmall)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        options.forEach { text ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                RadioButton(
+                    selected = selectedOption == text,
+                    onClick = { selectedOption = text }
+                )
+                Text(text = text, modifier = Modifier.padding(start = 8.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Button(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            ) {
+                Text("БУЦАХ", color = Color.White)
+            }
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        settingsManager.setVisibilityMode(selectedOption)
+                        navController.popBackStack()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            ) {
+                Text("ХАДГАЛАХ", color = Color.White)
+            }
+        }
     }
 }

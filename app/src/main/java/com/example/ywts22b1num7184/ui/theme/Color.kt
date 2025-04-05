@@ -2,6 +2,7 @@ package com.example.ywts22b1num7184.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val button_color = Color (0xFF6100EE)
 val md_theme_light_primary = Color(0xFF006879)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFA9EDFF)
