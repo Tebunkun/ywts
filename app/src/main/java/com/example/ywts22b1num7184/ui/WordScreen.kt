@@ -23,7 +23,6 @@ fun WordScreen(navController: NavController) {
 
     val settingsStore = remember { SettingsManager(context) }
 
-    // Collect the visibility mode from DataStore
     val displayOption by settingsStore.visibilityMode.collectAsState(initial = SettingsManager.SHOW_BOTH)
 
     var currentIndex by remember { mutableStateOf(0) }
