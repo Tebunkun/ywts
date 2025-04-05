@@ -47,7 +47,6 @@ class MainActivity : ComponentActivity() {
                                 titleContentColor = Color.White
                             ),
                             actions = {
-                                // Menu icon дээр дарахад SettingsScreen руу шилжих
                                 IconButton(onClick = {
                                     navController.navigate("SettingsScreen")
                                 }) {
@@ -92,16 +91,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        fun setupNotificationWorker(context: Context) {
+            val workRequest = PeriodicWorkRequestBuilder<ReminderWorker>(24, TimeUnit.HOURS)
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "word_notification_work",
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+        }
+
     }
 }
 
-fun setupNotificationWorker(context: Context) {
-    val workRequest = PeriodicWorkRequestBuilder<ReminderWorker>(1, TimeUnit.MINUTES)
-        .build()
-
-    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-        "word_notification_work",
-        ExistingPeriodicWorkPolicy.KEEP,
-        workRequest
-    )
-}

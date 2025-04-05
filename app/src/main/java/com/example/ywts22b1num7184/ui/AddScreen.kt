@@ -44,7 +44,6 @@ fun AddScreen(navController: NavController, word: String, translation: String ) 
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Save & Stop buttons in a row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
