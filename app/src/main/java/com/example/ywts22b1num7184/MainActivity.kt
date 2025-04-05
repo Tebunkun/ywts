@@ -1,5 +1,6 @@
 package com.example.ywts22b1num7184
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,12 +13,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.ywts22b1num7184.data.SettingsManager
+import com.example.ywts22b1num7184.notification.ReminderWorker
 import com.example.ywts22b1num7184.ui.AddScreen
 import com.example.ywts22b1num7184.ui.MainScreen
 import com.example.ywts22b1num7184.ui.SettingsScreen
 import com.example.ywts22b1num7184.ui.theme.Ywts22b1num7184Theme
 import com.example.ywts22b1num7184.ui.theme.button_color
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -28,7 +34,6 @@ class MainActivity : ComponentActivity() {
             Ywts22b1num7184Theme {
                 val navController = rememberNavController()
 
-                // SettingsManager-ийг үүсгэх
                 val settingsManager = SettingsManager(applicationContext)
 
                 Scaffold(
@@ -57,12 +62,14 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "MainScreen",  // MainScreen эхлээд харагдана
+                        startDestination = "MainScreen",
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("MainScreen") {
-                            // settingsManager дамжуулах шаардлагагүй. зөвхөн navController дамжуулж байна.
-                            MainScreen(navController = navController)
+                            MainScreen(
+                                navController = navController,
+                                settingsManager = settingsManager
+                            )
                         }
 
                         composable("AddScreen/{word}/{translation}") { backStackEntry ->
@@ -76,10 +83,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("SettingsScreen") {
-                            // settingsManager-ийг зөв дамжуулж байна
                             SettingsScreen(
                                 navController = navController,
-                                settingsManager = settingsManager  // settingsManager-ийг зөв дамжуулж байна
+                                settingsManager = settingsManager
                             )
                         }
                     }
@@ -87,4 +93,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+fun setupNotificationWorker(context: Context) {
+    val workRequest = PeriodicWorkRequestBuilder<ReminderWorker>(1, TimeUnit.MINUTES)
+        .build()
+
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        "word_notification_work",
+        ExistingPeriodicWorkPolicy.KEEP,
+        workRequest
+    )
 }

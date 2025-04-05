@@ -23,16 +23,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.ywts22b1num7184.WordApp
 import com.example.ywts22b1num7184.data.DatabaseHelper
+import com.example.ywts22b1num7184.data.SettingsManager
+import com.example.ywts22b1num7184.data.SettingsManager.Companion.SHOW_FOREIGN
+import com.example.ywts22b1num7184.data.SettingsManager.Companion.SHOW_NATIVE
 import com.example.ywts22b1num7184.ui.theme.button_color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController, settingsManager: SettingsManager) {
     val context = LocalContext.current
     val dbHelper = DatabaseHelper(context)
     var words by remember { mutableStateOf(dbHelper.getAllWords()) }
@@ -42,17 +46,17 @@ fun MainScreen(navController: NavController) {
     var word by remember { mutableStateOf(words.getOrNull(currentIndex)?.first ?: "") }
     var translation by remember { mutableStateOf(words.getOrNull(currentIndex)?.second ?: "") }
     var showDialog by remember { mutableStateOf(false) }
+    val visibilityMode by settingsManager.visibilityMode.collectAsState(initial = SettingsManager.SHOW_BOTH)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        contentAlignment = Alignment.Center // Center content
+        contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 🟢 Word input (centered)
             OutlinedTextField(
                 value = word,
                 onValueChange = {
@@ -65,6 +69,7 @@ fun MainScreen(navController: NavController) {
                         translation = "No translation"
                     }
                 },
+                visualTransformation = if (!visibilityMode.equals(SHOW_FOREIGN)) VisualTransformation.None else PasswordVisualTransformation(),
                 label = { Text("Word") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,12 +88,12 @@ fun MainScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 🟡 Translation (centered)
             TextField(
                 value = translation,
                 onValueChange = {},
                 label = { Text("Translation") },
                 textStyle = MaterialTheme.typography.bodyLarge,
+                visualTransformation = if (!visibilityMode.equals(SHOW_NATIVE)) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .pointerInput(Unit) {
@@ -102,14 +107,12 @@ fun MainScreen(navController: NavController) {
             )
         }
 
-        // 🟦 Spacer to push buttons down
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
-            // 🔵 CRUD Buttons (Add, Update, Delete)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -138,7 +141,6 @@ fun MainScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(60.dp))
 
-            // 🟣 Navigation Buttons (Previous, Next)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -176,7 +178,6 @@ fun MainScreen(navController: NavController) {
         }
     }
 
-    // 🟥 Delete Confirmation Dialog
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },

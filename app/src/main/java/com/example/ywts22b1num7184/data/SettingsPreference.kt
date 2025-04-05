@@ -15,7 +15,7 @@ class SettingsPreference(private val context: Context) {
     }
 
     val displayModeFlow: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[DISPLAY_MODE_KEY] ?: "both" // Анхны утга
+        preferences[DISPLAY_MODE_KEY] ?: "both"
     }
 
     suspend fun saveDisplayMode(mode: String) {

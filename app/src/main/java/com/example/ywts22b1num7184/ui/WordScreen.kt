@@ -21,7 +21,6 @@ fun WordScreen(navController: NavController) {
     val wordDao = db.wordDao()
     val words by wordDao.getAllWords().collectAsState(initial = emptyList())
 
-    // Create an instance of SettingsManager
     val settingsStore = remember { SettingsManager(context) }
 
     // Collect the visibility mode from DataStore
